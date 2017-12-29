@@ -114,12 +114,57 @@ tools:context="com.sourcey.MyAttendence.FetchLocation">
         </RelativeLayout>
 
     </RelativeLayout>
+</android.support.v7.widget.CardView>
 
 
+    <android.support.v7.widget.CardView
+        card_view:elevation="0dp"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_below="@+id/card_view"
+        android:id="@+id/timer_card"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="1dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+
+            <RelativeLayout
+                android:minHeight="120dp"
+                android:id="@+id/timer_lay"
+                android:layout_alignParentTop="true"
+                android:padding="@dimen/activity_horizontal_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/timer_text"
+                    android:text=""
+                    android:gravity="center"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
 </android.support.v7.widget.CardView>
 
-<Button
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/timer_card"
+         />
+
+
+    <Button
     android:enabled="false"
     android:layout_margin="@dimen/activity_horizontal_margin"
     style="@style/proceedButtonStyle"

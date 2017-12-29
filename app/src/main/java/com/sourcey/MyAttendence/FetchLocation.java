@@ -9,11 +9,13 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -21,9 +23,11 @@ import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,10 +49,14 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.sourcey.MyAttendence.LocationUtil.PermissionUtils;
 import com.sourcey.MyAttendence.LocationUtil.PermissionUtils.PermissionResultCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,8 +69,9 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
     @BindView(R.id.btnLocation)Button btnProceed;
     @BindView(R.id.tvAddress)TextView tvAddress;
     @BindView(R.id.tvEmpty)TextView tvEmpty;
+    @BindView(R.id.timer_text)TextView timerText;
     @BindView(R.id.rlPickLocation)RelativeLayout rlPick;
-
+    @BindView(R.id.imageView1)ImageView mImageView;
 
     // LogCat tag
     private static final String TAG = "Location Error";
@@ -115,6 +124,23 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                     latitude = mLastLocation.getLatitude();
                     longitude = mLastLocation.getLongitude();
                     getAddress();
+                    new CountDownTimer(60000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+
+                            long ms = millisUntilFinished;
+                            String text = String.format("%02d : %02d",
+                                    TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(ms)),
+                                    TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(ms)));
+                            timerText.setText(text);
+                            //timerText.setText(new SimpleDateFormat("mm:ss").format(new Date( millisUntilFinished)));
+
+                        }
+
+                        public void onFinish() {
+                            timerText.setText("Time Expired");
+                        }
+                    }.start();
 
                 } else {
 
@@ -133,6 +159,7 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
             public void onClick(View view) {
 
                 check_camera();
+
             }
         });
 
@@ -284,7 +311,10 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
 
     private void openCamera() {
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        startActivity(intent);
+
+            startActivityForResult(intent, 1);
+
+       // startActivity(intent);
     }
     /**
      * Method to display the location on UI
@@ -481,6 +511,32 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                     default:
                         break;
                 }
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    if (!(timerText.getText().toString().equals("Time Expired"))){
+
+                        Bundle extras = data.getExtras();
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        mImageView.setImageBitmap(imageBitmap);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] byteArrayImage = baos.toByteArray();
+                        String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+
+                        
+
+                    }
+
+                    else{
+                        Toast.makeText(FetchLocation.this, "Timer Expired Log Again",
+                                Toast.LENGTH_LONG).show();
+                        finish();
+                        Intent i = new Intent(FetchLocation.this, FetchLocation.class);
+                        startActivity(i);
+                    }
+
+                }
+
                 break;
         }
     }

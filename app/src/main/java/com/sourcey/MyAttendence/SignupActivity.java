@@ -41,6 +41,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         ButterKnife.bind(this);
+        fetchUsers();
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,6 +58,14 @@ public class SignupActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+            }
+        });
+
+        _usernameText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus)
+                    Toast.makeText(getApplicationContext(), "unfocus", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -122,6 +131,25 @@ public class SignupActivity extends AppCompatActivity {
         _dobText.addTextChangedListener(tw);
     }
 
+    public void fetchUsers(){
+        final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
+
+            @Override
+            public void processFinish(String output){
+                if (output.equals(" 200")) {
+                   // onSignupSuccess();
+                } else {
+                    //onSignupFailed();
+                }
+
+            }
+        });
+        sendpost.mycontext=getApplicationContext();
+        sendpost.endpoint="/delay/3";
+        sendpost.method="GET";
+        sendpost.execute();
+    }
+
     public void signup() {
         Log.d(TAG, "Signup");
 
@@ -173,6 +201,7 @@ public class SignupActivity extends AppCompatActivity {
         sendpost.paras.put("seniorid","6e86bf83-8f96-46e2-94f3-8a4fec684e1b");
         sendpost.mycontext=getApplicationContext();
         sendpost.endpoint="/attendance/register";
+        sendpost.method="POST";
 
         new android.os.Handler().postDelayed(
                 new Runnable() {

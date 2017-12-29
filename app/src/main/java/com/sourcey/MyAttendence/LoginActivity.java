@@ -90,6 +90,7 @@ public class LoginActivity extends AppCompatActivity {
         sendpost.paras.put("password",password);
         sendpost.mycontext=getApplicationContext();
         sendpost.endpoint="/attendance/login";
+        sendpost.method = "POST";
         // TODO: Implement your own authentication logic here.
 
         new android.os.Handler().postDelayed(

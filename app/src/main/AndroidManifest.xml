@@ -29,10 +29,18 @@
         <activity
             android:name=".FetchLocation"
             android:theme="@style/AppTheme.Light" />
-        <activity android:name=".HomePage"
-            android:theme="@style/AppTheme.Light"/>
-        <activity android:name=".UserProfile"
-            android:theme="@style/AppTheme.Light"/>
+        <activity
+            android:name=".HomePage"
+            android:theme="@style/AppTheme.Light" />
+        <activity
+            android:name=".UserProfile"
+            android:theme="@style/AppTheme.Light" />
+        <activity
+            android:name=".AttendanceView"
+            android:theme="@style/AppTheme.Light" />
+        <activity
+            android:name=".DateAttendence"
+            android:theme="@style/AppTheme.Light" />
     </application>
 
 </manifest>

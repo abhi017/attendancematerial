@@ -71,6 +71,19 @@
                 android:hint="Position"/>
         </android.support.design.widget.TextInputLayout>
 
+        <!-- Manager Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <AutoCompleteTextView android:id="@+id/manager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:hint="Manager"/>
+        </android.support.design.widget.TextInputLayout>
+
         <!--  Email Label -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

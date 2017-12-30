@@ -7,8 +7,10 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -46,7 +48,7 @@ public class SendPostRequest extends AsyncTask<String, Void, String> {
 
 
     public interface AsyncResponse {
-        void processFinish(String output);
+        void processFinish(String output, int response);
     }
     public AsyncResponse delegate = null;
 
@@ -77,17 +79,32 @@ public class SendPostRequest extends AsyncTask<String, Void, String> {
             conn.setRequestMethod(method);
 
             if(method.equals("POST")) {
+                conn.setRequestProperty("Content-Type",
+                        "application/json;charset=utf-8");
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
+                //open
+                conn.connect();
 
-                OutputStream os = conn.getOutputStream();
+                //setup send
+                OutputStream os = new BufferedOutputStream(conn.getOutputStream());
+                os.write(postDataParams.toString().getBytes());
+                //clean up
+                os.flush();
+
+               /* OutputStream os = conn.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(os, "UTF-8"));
                 writer.write(getPostDataString(postDataParams));
 
                 writer.flush();
                 writer.close();
-                os.close();
+                os.close();*/
+
+               /* DataOutputStream  printout = new DataOutputStream(conn.getOutputStream ());
+                printout.writeBytes(URLEncoder.encode(postDataParams.toString(),"UTF-8"));
+                printout.flush ();
+                printout.close ();*/
             }
 
              responseCode=conn.getResponseCode();
@@ -107,7 +124,6 @@ public class SendPostRequest extends AsyncTask<String, Void, String> {
                 }
 
                 in.close();
-                sb.append(" "+responseCode);
                 return sb.toString();
 
             }
@@ -125,7 +141,7 @@ public class SendPostRequest extends AsyncTask<String, Void, String> {
     public void onPostExecute(String result) {
         Toast.makeText(mycontext, result,
                 Toast.LENGTH_LONG).show();
-        delegate.processFinish(result);
+        delegate.processFinish(result,responseCode);
     }
 
 

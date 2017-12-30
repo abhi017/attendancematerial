@@ -3,6 +3,8 @@ package com.sourcey.MyAttendence;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,21 +12,35 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sourcey.MyAttendence.SendPostRequest;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
 
+import static com.google.android.gms.analytics.internal.zzy.b;
+
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
-
+    ArrayList<HashMap<String,String>> managers = new ArrayList<>();
+    ArrayList<String> managersArray = new ArrayList<>();
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    SharedPreferences sharedpreferences;
     @BindView(R.id.input_name) EditText _nameText;
     @BindView(R.id.user_name) EditText _usernameText;
     @BindView(R.id.input_email) EditText _emailText;
@@ -35,13 +51,20 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.position) EditText _positionText;
     @BindView(R.id.btn_signup) Button _signupButton;
     @BindView(R.id.link_login) TextView _loginLink;
+    @BindView(R.id.manager) AutoCompleteTextView _manager;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         ButterKnife.bind(this);
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         fetchUsers();
+
+//        ListAdapter  adapterList = new SimpleAdapter(SignupActivity.this,managers,R.layout.autocomplete_dropdown,new String[]{"Username"},new int[R.id.manager]);
+
+
+
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +132,7 @@ public class SignupActivity extends AppCompatActivity {
                         clean = String.format("%02d%02d%02d",day, mon, year);
                     }
 
-                    clean = String.format("%s/%s/%s", clean.substring(0, 2),
+                    clean = String.format("%s-%s-%s", clean.substring(0, 2),
                             clean.substring(2, 4),
                             clean.substring(4, 8));
 
@@ -135,18 +158,69 @@ public class SignupActivity extends AppCompatActivity {
         final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
 
             @Override
-            public void processFinish(String output){
-                if (output.equals(" 200")) {
+            public void processFinish(String output, int response){
+                if (response == 200) {
+                    try {
+                        JSONArray obj = new JSONArray(output);
+                        Log.d("My App", obj.toString());
+                        for (int i=0; i<obj.length(); i++)
+                        {
+                            JSONObject manage = obj.getJSONObject(i);
+                            String Id= manage.getString("Id");
+                            String Username= manage.getString("Username");
+                            String Password= manage.getString("Password");
+                            String PasswordHash= manage.getString("PasswordHash");
+                            String Token= manage.getString("Token");
+                            String Name= manage.getString("Name");
+                            String Dob= manage.getString("Dob");
+                            String Position= manage.getString("Position");
+                            String Email= manage.getString("Email");
+                            String Contact= manage.getString("Contact");
+                            String Created= manage.getString("Created");
+                            String Seniorid= manage.getString("Seniorid");
+                            String Approval= manage.getString("Approval");
+                            HashMap<String,String> managetemp=new HashMap<>();
+                            managetemp.put("Id",Id);
+                            managetemp.put("Username",Username);
+                            managetemp.put("Password",Password);
+                            managetemp.put("PasswordHash",PasswordHash);
+                            managetemp.put("Token",Token);
+                            managetemp.put("Name",Name);
+                            managetemp.put("Dob",Dob);
+                            managetemp.put("Position",Position);
+                            managetemp.put("Email",Email);
+                            managetemp.put("Contact",Contact);
+                            managetemp.put("Created",Created);
+                            managetemp.put("Seniorid",Seniorid);
+                            managetemp.put("Approval",Approval);
+                            managersArray.add(Username);
+                            managers.add(managetemp);
+                        }
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                                (getApplicationContext(),R.layout.autocomplete_dropdown,managersArray);
+
+                        _manager.setAdapter(adapter);
+                        _manager.setThreshold(1);
+                    }
+
+                    catch (Throwable t) {
+                        Log.e("My App", t.getMessage());
+                    }
                    // onSignupSuccess();
                 } else {
+                    Toast.makeText(SignupActivity.this, "Kindly check your Internet connection",
+                            Toast.LENGTH_LONG).show();
+                    finish();
+                    Intent i = new Intent(SignupActivity.this, LoginActivity.class);
+                    startActivity(i);
                     //onSignupFailed();
                 }
 
             }
         });
         sendpost.mycontext=getApplicationContext();
-        sendpost.endpoint="/delay/3";
-        sendpost.method="GET";
+        sendpost.endpoint="/attendance/getUsers";
+        sendpost.method="POST";
         sendpost.execute();
     }
 
@@ -174,15 +248,31 @@ public class SignupActivity extends AppCompatActivity {
         String reEnterPassword = _reEnterPasswordText.getText().toString();
         String dob = _dobText.getText().toString();
         String position = _positionText.getText().toString();
+        String managerVal = _manager.getText().toString();
+        String seniorId = "";
         final String Response;
         // TODO: Implement your own signup logic here.
 
         final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
 
             @Override
-            public void processFinish(String output){
-                if (output.equals(" 200")) {
-                    onSignupSuccess();
+            public void processFinish(String output, int response){
+                if (response==200 && !(output.isEmpty())) {
+                    try {
+                        JSONObject obj = new JSONObject(output);
+                        Log.d("My App", obj.toString());
+                        String Token=obj.getString("Token");
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString("Token",Token);
+                        editor.commit();
+                        onSignupSuccess();
+                    }
+                    catch (Throwable t) {
+                        onSignupFailed();
+                        Log.e("My App", t.getMessage());
+                    }
+
+
                 } else {
                     onSignupFailed();
                 }
@@ -191,6 +281,12 @@ public class SignupActivity extends AppCompatActivity {
         });
 
 
+        for(int i=0;i<managers.size();i++)
+        {
+            if(managers.get(i).get("Username").toString().equals(managerVal)){
+                seniorId = managers.get(i).get("Id").toString();
+            }
+        }
         sendpost.paras.put("name",name);
         sendpost.paras.put("email",email);
         sendpost.paras.put("contact",mobile);
@@ -198,7 +294,7 @@ public class SignupActivity extends AppCompatActivity {
         sendpost.paras.put("username",username);
         sendpost.paras.put("dob",dob);
         sendpost.paras.put("position",position);
-        sendpost.paras.put("seniorid","6e86bf83-8f96-46e2-94f3-8a4fec684e1b");
+        sendpost.paras.put("seniorid",seniorId);
         sendpost.mycontext=getApplicationContext();
         sendpost.endpoint="/attendance/register";
         sendpost.method="POST";
@@ -222,7 +318,7 @@ public class SignupActivity extends AppCompatActivity {
         _signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
         finish();
-        Intent i = new Intent(this, LoginActivity.class);
+        Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
     }
 

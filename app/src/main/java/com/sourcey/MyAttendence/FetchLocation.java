@@ -10,6 +10,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -49,6 +50,8 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.sourcey.MyAttendence.LocationUtil.PermissionUtils;
 import com.sourcey.MyAttendence.LocationUtil.PermissionUtils.PermissionResultCallback;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -80,6 +83,9 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
     private final static int REQUEST_CHECK_SETTINGS = 2000;
 
     private Location mLastLocation;
+
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    SharedPreferences sharedpreferences;
 
 
     public static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
@@ -517,13 +523,60 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
 
                         Bundle extras = data.getExtras();
                         Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        mImageView.setImageBitmap(imageBitmap);
+                        //mImageView.setImageBitmap(imageBitmap);
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
                         byte[] byteArrayImage = baos.toByteArray();
                         String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
 
-                        
+                        final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
+
+                            @Override
+                            public void processFinish(String output, int response){
+                                if (response==200 && output.equals("\"marked\"")) {
+                                    Toast.makeText(FetchLocation.this, "Attendance Logged",
+                                            Toast.LENGTH_LONG).show();
+                                    finish();
+                                    Intent i = new Intent(FetchLocation.this, HomePage.class);
+                                    startActivity(i);
+                                } else {
+                                    Toast.makeText(FetchLocation.this, "Kindly check your Internet connection",
+                                            Toast.LENGTH_LONG).show();
+                                    finish();
+                                    Intent i = new Intent(FetchLocation.this, FetchLocation.class);
+                                    startActivity(i);
+                                }
+
+                            }
+                        });
+
+                        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                        String details = sharedpreferences.getString("UserDetails","");
+                        JSONObject obj=new JSONObject();
+                        String userid="";
+                        try{
+                             obj = new JSONObject(details);
+                             userid = obj.getString("Id");
+                        }
+                        catch(Throwable t)
+                        {
+                            Log.e("App: ", "Failed to get id");
+                        }
+
+
+                        sendpost.paras.put("userid",userid);
+                        sendpost.paras.put("coordinates",Double.toString(latitude) + " " + Double.toString(longitude));
+                        sendpost.paras.put("picture",encodedImage);
+                        sendpost.mycontext=getApplicationContext();
+                        sendpost.endpoint="/attendance/mark";
+                        sendpost.method = "POST";
+
+                        sendpost.execute();
+
+                        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        mImageView.setImageBitmap(decodedByte);
 
                     }
 

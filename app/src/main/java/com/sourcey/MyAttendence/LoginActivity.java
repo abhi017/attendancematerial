@@ -1,6 +1,8 @@
 package com.sourcey.MyAttendence;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import butterknife.ButterKnife;
 import butterknife.BindView;
 
@@ -19,6 +23,9 @@ import butterknife.BindView;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    SharedPreferences sharedpreferences;
+
 
     @BindView(R.id.input_email) EditText _emailText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -30,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -75,10 +83,21 @@ public class LoginActivity extends AppCompatActivity {
         final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
 
             @Override
-            public void processFinish(String output){
-                String[] words=output.split(" ");
-                if (words[words.length-1].equals("200")) {
-                    onLoginSuccess();
+            public void processFinish(String output, int response){
+                if (response==200 && !(output.isEmpty())) {
+                    try {
+                        JSONObject obj = new JSONObject(output);
+                        Log.d("My App", obj.toString());
+                        String Token=obj.getString("Token");
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString("Token",Token);
+                        editor.commit();
+                        onLoginSuccess();
+                    }
+                    catch (Throwable t) {
+                        onLoginFailed();
+                        Log.e("My App", t.getMessage());
+                    }
                 } else {
                     onLoginFailed();
                 }
@@ -126,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
         finish();
-        Intent i = new Intent(this, FetchLocation.class);
+        Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
     }
 

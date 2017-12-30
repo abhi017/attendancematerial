@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.sourcey.MyAttendence.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,12 +21,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sourcey.MyAttendence.LoginActivity"
+            android:name=".LoginActivity"
             android:theme="@style/AppTheme.Dark" />
         <activity
-            android:name="com.sourcey.MyAttendence.SignupActivity"
+            android:name=".SignupActivity"
             android:theme="@style/AppTheme.Dark" />
-        <activity android:name="com.sourcey.MyAttendence.FetchLocation"
+        <activity
+            android:name=".FetchLocation"
+            android:theme="@style/AppTheme.Light" />
+        <activity android:name=".HomePage"
+            android:theme="@style/AppTheme.Light"/>
+        <activity android:name=".UserProfile"
             android:theme="@style/AppTheme.Light"/>
     </application>
 

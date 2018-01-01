@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -88,7 +89,12 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus)
-                    Toast.makeText(getApplicationContext(), "unfocus", Toast.LENGTH_LONG).show();
+                {
+                    String username = _usernameText.getText().toString();
+                    if(managersArray.contains(username)) {
+                        _usernameText.setError("Username already exists");
+                    }
+                }
             }
         });
 
@@ -168,7 +174,6 @@ public class SignupActivity extends AppCompatActivity {
                             JSONObject manage = obj.getJSONObject(i);
                             String Id= manage.getString("Id");
                             String Username= manage.getString("Username");
-                            String Password= manage.getString("Password");
                             String PasswordHash= manage.getString("PasswordHash");
                             String Token= manage.getString("Token");
                             String Name= manage.getString("Name");
@@ -182,7 +187,6 @@ public class SignupActivity extends AppCompatActivity {
                             HashMap<String,String> managetemp=new HashMap<>();
                             managetemp.put("Id",Id);
                             managetemp.put("Username",Username);
-                            managetemp.put("Password",Password);
                             managetemp.put("PasswordHash",PasswordHash);
                             managetemp.put("Token",Token);
                             managetemp.put("Name",Name);
@@ -326,9 +330,6 @@ public class SignupActivity extends AppCompatActivity {
         Toast.makeText(getBaseContext(), "Signup failed", Toast.LENGTH_LONG).show();
 
         _signupButton.setEnabled(true);
-        finish();
-        Intent i = new Intent(this, SignupActivity.class);
-        startActivity(i);
     }
 
     public boolean validate() {
@@ -341,6 +342,8 @@ public class SignupActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
         String reEnterPassword = _reEnterPasswordText.getText().toString();
 
+
+
         if (name.isEmpty() || name.length() < 3) {
             _nameText.setError("at least 3 characters");
             valid = false;
@@ -351,7 +354,11 @@ public class SignupActivity extends AppCompatActivity {
         if (username.isEmpty()) {
             _usernameText.setError("Enter Valid username");
             valid = false;
-        } else {
+        } else if(managersArray.contains(username)) {
+            _usernameText.setError("Username already exists");
+            valid = false;
+        }
+        else{
             _usernameText.setError(null);
         }
 

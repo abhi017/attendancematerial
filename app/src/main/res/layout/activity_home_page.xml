@@ -46,7 +46,16 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="@dimen/activity_horizontal_margin"
 
-            android:text="Junior's Attendence" />
+            android:text="My Juniors" />
+
+        <Button
+            android:id="@+id/logout"
+            style="@style/proceedButtonStyle"
+            android:layout_below="@id/juniorAt"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+
+            android:text="Logout" />
     </LinearLayout>
 
 </RelativeLayout>

@@ -27,8 +27,7 @@ import butterknife.ButterKnife;
 public class AttendanceView extends AppCompatActivity {
     JSONArray obj1 = new JSONArray();
     List<EventDay> events = new ArrayList<>();
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    SharedPreferences sharedpreferences;
+    String userid;
     @BindView(R.id.calendarView)CalendarView calendarView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,24 +65,18 @@ public class AttendanceView extends AppCompatActivity {
                         calendarView.setEvents(events);
                     }
                     catch (Throwable t) {
-                        Toast.makeText(AttendanceView.this, "Kindly check your Internet connection",
+                        Toast.makeText(AttendanceView.this, "No Attendance Marked",
                                 Toast.LENGTH_LONG).show();
-                        finish();
-                        Intent i = new Intent(AttendanceView.this, HomePage.class);
-                        startActivity(i);
                     }
                 } else {
                     Toast.makeText(AttendanceView.this, "Kindly check your Internet connection",
                             Toast.LENGTH_LONG).show();
-                    finish();
-                    Intent i = new Intent(AttendanceView.this, HomePage.class);
-                    startActivity(i);
                 }
 
             }
         });
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+       /* sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         String details = sharedpreferences.getString("UserDetails","");
         JSONObject obj=new JSONObject();
         String userid="";
@@ -94,7 +87,10 @@ public class AttendanceView extends AppCompatActivity {
         catch(Throwable t)
         {
             Log.e("App: ", "Failed to get id");
-        }
+        }*/
+
+        Intent intent = getIntent();
+        userid= intent.getStringExtra("userid");
 
         sendpost.paras.put("userid",userid);
         sendpost.endpoint="/attendance/getAll";
@@ -116,6 +112,7 @@ public class AttendanceView extends AppCompatActivity {
 
                 Intent i = new Intent(getApplicationContext(), DateAttendence.class);
                 i.putExtra("Date", Date);
+                i.putExtra("userid", userid);
                 startActivity(i);
             }
         });

@@ -41,6 +41,9 @@
         <activity
             android:name=".DateAttendence"
             android:theme="@style/AppTheme.Light" />
+        <activity android:name=".Juniors"
+            android:theme="@style/AppTheme.Light.noActionBar"
+            ></activity>
     </application>
 
 </manifest>

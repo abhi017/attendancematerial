@@ -105,19 +105,10 @@ public class DateAttendence extends AppCompatActivity {
             }
         });
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        String details = sharedpreferences.getString("UserDetails", "");
-        JSONObject obj = new JSONObject();
-        String userid = "";
-        try {
-            obj = new JSONObject(details);
-            userid = obj.getString("Id");
-        } catch (Throwable t) {
-            Log.e("App: ", "Failed to get id");
-        }
 
         Intent intent = getIntent();
         String date= intent.getStringExtra("Date");
+        String userid=intent.getStringExtra("userid");
 
         sendpost.paras.put("userid", userid);
         sendpost.paras.put("date", date);

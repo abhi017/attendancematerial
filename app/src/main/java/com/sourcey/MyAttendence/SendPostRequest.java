@@ -60,7 +60,7 @@ public class SendPostRequest extends AsyncTask<String, Void, String> {
     public String doInBackground(String... arg0) {
 
         try {
-            String urlStr= "http://45.63.101.72" + endpoint;
+            String urlStr= "http://amittechnology.com" + endpoint;
             URL url = new URL(urlStr); // here is your URL path
 
 

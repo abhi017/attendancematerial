@@ -3,17 +3,21 @@ package com.sourcey.MyAttendence;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -129,7 +133,8 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                 if (mLastLocation != null) {
                     latitude = mLastLocation.getLatitude();
                     longitude = mLastLocation.getLongitude();
-                    getAddress();
+
+                        getAddress();
                     new CountDownTimer(60000, 1000) {
 
                         public void onTick(long millisUntilFinished) {
@@ -365,9 +370,13 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
 
     public void getAddress()
     {
-
-        Address locationAddress=getAddress(latitude,longitude);
-
+        Address locationAddress = null;
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if ( netInfo != null && netInfo.isConnectedOrConnecting()) {
+             locationAddress = getAddress(latitude, longitude);
+        }
         if(locationAddress!=null)
         {
             String address = locationAddress.getAddressLine(0);
@@ -409,13 +418,24 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                 tvAddress.setText(currentLocation);
                 tvAddress.setVisibility(View.VISIBLE);
 
-                if(!btnProceed.isEnabled())
-                    btnProceed.setEnabled(true);
+
 
 
             }
 
+
         }
+
+        else
+        {
+            String currentLocation = "Location Captured";
+            tvEmpty.setVisibility(View.GONE);
+            tvAddress.setText(currentLocation);
+            tvAddress.setVisibility(View.VISIBLE);
+        }
+
+        if(!btnProceed.isEnabled())
+            btnProceed.setEnabled(true);
 
     }
 
@@ -529,7 +549,7 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                         byte[] byteArrayImage = baos.toByteArray();
                         String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
 
-                        final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
+                       /* final SendPostRequest sendpost = new SendPostRequest(new SendPostRequest.AsyncResponse(){
 
                             @Override
                             public void processFinish(String output, int response){
@@ -576,7 +596,27 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                         byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
 
                         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                        mImageView.setImageBitmap(decodedByte);
+                        mImageView.setImageBitmap(decodedByte);*/
+
+                        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                        String details = sharedpreferences.getString("UserDetails","");
+                        JSONObject obj=new JSONObject();
+                        String userid="";
+                        try{
+                            obj = new JSONObject(details);
+                            userid = obj.getString("Id");
+                        }
+                        catch(Throwable t)
+                        {
+                            Log.e("App: ", "Failed to get id");
+                        }
+
+
+                        SQLiteHelper sQLiteHelper = new SQLiteHelper(FetchLocation.this);
+                        sQLiteHelper.insertRecord("/attendance/mark",encodedImage,userid,Double.toString(latitude) + " " + Double.toString(longitude));
+                        finish();
+                        Intent i = new Intent(FetchLocation.this, HomePage.class);
+                        startActivity(i);
 
                     }
 

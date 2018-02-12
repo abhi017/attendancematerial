@@ -91,6 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                         String Token=obj.getString("Token");
                         SharedPreferences.Editor editor = sharedpreferences.edit();
                         editor.putString("Token",Token);
+                        editor.putString("First","1");
                         editor.commit();
                         onLoginSuccess();
                     }

@@ -268,6 +268,7 @@ public class SignupActivity extends AppCompatActivity {
                         String Token=obj.getString("Token");
                         SharedPreferences.Editor editor = sharedpreferences.edit();
                         editor.putString("Token",Token);
+                        editor.putString("First","1");
                         editor.commit();
                         onSignupSuccess();
                     }

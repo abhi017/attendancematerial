@@ -27,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
 
 
         this.context = this;
@@ -96,6 +96,7 @@ public class MainActivity extends ActionBarActivity {
             }
 
             else{
+                finish();
                 Intent i = new Intent(MainActivity.this, HomePage.class);
                 startActivity(i);
             }

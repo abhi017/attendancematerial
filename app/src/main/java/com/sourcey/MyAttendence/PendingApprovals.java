@@ -90,7 +90,7 @@ public class PendingApprovals extends Fragment {
                         adapter = new CustomAdapterJunior(data,getContext(),false,getFragmentManager(),currentFrag);
                         recyclerView.setAdapter(adapter);
                     } catch (Throwable t) {
-                        Toast.makeText(getContext(), "Kindly check your Internet connection",
+                        Toast.makeText(getContext(), "No records found.",
                                 Toast.LENGTH_LONG).show();
                     }
                 } else {

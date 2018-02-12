@@ -88,11 +88,11 @@ public class DateAttendence extends AppCompatActivity {
                         adapter = new CustomAdapter(data,getApplicationContext());
                         recyclerView.setAdapter(adapter);
                     } catch (Throwable t) {
-                        Toast.makeText(DateAttendence.this, "Kindly check your Internet connection",
+                        Toast.makeText(DateAttendence.this, "No Records Found.",
                                 Toast.LENGTH_LONG).show();
-                        finish();
-                        Intent i = new Intent(DateAttendence.this, AttendanceView.class);
-                        startActivity(i);
+                        //finish();
+                        /*Intent i = new Intent(DateAttendence.this, AttendanceView.class);
+                        startActivity(i);*/
                     }
                 } else {
                     Toast.makeText(DateAttendence.this, "Kindly check your Internet connection",

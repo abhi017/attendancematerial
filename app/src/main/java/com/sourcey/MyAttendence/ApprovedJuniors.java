@@ -101,7 +101,7 @@ public class ApprovedJuniors extends Fragment {
                         adapter = new CustomAdapterJunior(data,getContext(),true,getFragmentManager(),currentFrag);
                         recyclerView.setAdapter(adapter);
                     } catch (Throwable t) {
-                        Toast.makeText(getContext(), "Kindly check your Internet connection",
+                        Toast.makeText(getContext(), "No records found.",
                                 Toast.LENGTH_LONG).show();
                     }
                 } else {

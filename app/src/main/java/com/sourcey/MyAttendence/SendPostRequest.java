@@ -139,8 +139,8 @@ public class SendPostRequest extends AsyncTask<String, Void, String> {
 
     @Override
     public void onPostExecute(String result) {
-        Toast.makeText(mycontext, result,
-                Toast.LENGTH_LONG).show();
+        //Toast.makeText(mycontext, result,
+          //      Toast.LENGTH_LONG).show();
         delegate.processFinish(result,responseCode);
     }
 

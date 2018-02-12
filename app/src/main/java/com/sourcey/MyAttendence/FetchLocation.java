@@ -133,6 +133,7 @@ public class FetchLocation extends AppCompatActivity implements ConnectionCallba
                 if (mLastLocation != null) {
                     latitude = mLastLocation.getLatitude();
                     longitude = mLastLocation.getLongitude();
+                    rlPick.setEnabled(false);
 
                         getAddress();
                     new CountDownTimer(60000, 1000) {
